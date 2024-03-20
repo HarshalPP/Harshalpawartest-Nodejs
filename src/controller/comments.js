@@ -82,19 +82,20 @@ export const userswatchComments = async (req, res) => {
 
 // delete a comment
 export const deleteComment = async (req, res) => {
-    try{
+  try {
+      const commentId = req.params.id;
+      const deletedComment = await comments.findByIdAndDelete(commentId);
 
-        const DeleteComment = req.params.id;
-        const result = await comments.findByIdAndDelete(DeleteComment);
-        if(!result) return res.status(404).json({message: "No Comments Found"});
-        res.status(200).json("Commets is",result);
+      if (!deletedComment) {
+          return res.status(404).json({ message: "Comment not found" });
+      }
 
-
-    }
-    catch(error){
-        console.log(error);
-    }
-}
+      res.status(200).json({ message: "Comment deleted successfully", deletedComment });
+  } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 
 
 // update a comment

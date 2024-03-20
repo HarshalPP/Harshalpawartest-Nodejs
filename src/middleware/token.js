@@ -1,31 +1,55 @@
-// Purpose: Middleware for update the api and pass id from headers.
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
-import { UserInfo } from '../models/usermodel.js';
-dotenv.config();
+import { Post } from '../models/post.js';
+import { comments } from '../models/comments.js'; 
 
-// make a middeware for update the api and pass id from headers //
-export const middlwareupdate = async (req, res, next) => {
-    try{
+// Middleware for authorizing post actions
+export const postMiddleware = async (req, res, next) => {
+  try {
+    const userId = req.headers['user-id']; 
 
-        const Author=req.headers.AuthorId
-        //checkAuthorid from models
-        const checkAuthorid=await UserInfo.findOne({_id:Author})
-        
-        if(!checkAuthorid){
-            return res.status(401).json({message:'Access Denied'})
-        }
-
-        res.status(200).json({message:'Access Granted'})
-        next();
+    if (req.params.id) {
+      const postId = req.params.id;
+      const post = await Post.findById(postId);
+      
+      if (!post) {
+        return res.status(404).json({ message: 'Post not found' });
+      }
 
 
-    }catch(error){
-        console.log(error)
-    
+      if (post.author.toString() !== userId) {
+        return res.status(403).json({ message: 'You are not authorized to edit/delete this post' });
+      }
     }
-}
 
 
+    next();
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
 
+// Middleware for authorizing comment actions
+export const commentMiddleware = async (req, res, next) => {
+  try {
+    const userId = req.headers['user-id']; 
 
+    if (req.params.id) { 
+      const commentId = req.params.id;
+
+      const comment = await comments.findById(commentId);
+      
+      if (!comment) {
+        return res.status(404).json({ message: 'Comment not found' });
+      }
+
+      if (comment.author.toString() !== userId) {
+        return res.status(403).json({ message: 'You are not authorized to edit/delete this comment' });
+      }
+    }
+
+    next();
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
