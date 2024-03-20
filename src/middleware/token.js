@@ -11,6 +11,7 @@ export const middlwareupdate = async (req, res, next) => {
         const Author=req.headers.AuthorId
         //checkAuthorid from models
         const checkAuthorid=await UserInfo.findOne({_id:Author})
+        
         if(!checkAuthorid){
             return res.status(401).json({message:'Access Denied'})
         }

@@ -52,25 +52,26 @@ export const login = async (req, res) => {
 
 
 
-// make a logout api verify the token and then logout the user //
-let involked=[]
+let invoked = [];
+
 export const logout = async (req, res) => {
   try {
-
-    const token = req.header.authorization.split(" ")[1];
+    const token = req.headers.authorization.split(" ")[1]; // Corrected 'req.header' to 'req.headers'
     console.log(token)
     if (!token) return res.status(401).json({ message: 'Auth Error' });
+
     const verified = jwt.verify(token, process.env.JWT_SECRET);
     if (!verified) return res.status(401).json({ message: 'Token verification failed' });
-    if(involked.includes(verified)){
+
+    if (invoked.includes(verified.id)) { // Corrected to check verified.id instead of verified object itself
       return res.status(401).json({ message: 'User already logged out' });
     }
-    involked.push(verified)
+
+    invoked.push(verified.id); // Store only the user ID instead of the entire verified object
     res.status(200).json({ message: 'Logout successfully' });
 
-    
   } catch (error) {
-    
+    console.error(error); // Add error logging
+    return res.status(500).json({ message: 'Internal Server Error' }); // Respond with an error status
   }
 }
-  
