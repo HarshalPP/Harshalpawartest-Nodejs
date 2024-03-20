@@ -1,6 +1,7 @@
 import express from 'express'
 import dotenv from 'dotenv'
 import{connectDB} from './config/db.js'
+import notfoundmiddleware from './middleware/notfoundmiddleware.js'
 dotenv.config()
 const app=express();
 
@@ -18,6 +19,10 @@ import commentRoute from './router/commentRoutes.js'
 app.use('/api/user',userRoute);
 app.use('/api/post',postRoute);
 app.use('/api/comment',commentRoute);
+
+
+//notfoundMiddleware
+app.use(notfoundmiddleware)
 
 // Database connection
 
